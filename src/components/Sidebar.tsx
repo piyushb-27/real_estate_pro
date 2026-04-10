@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { BarChart3, Building2, Handshake, LayoutDashboard, LineChart, PanelLeftClose, PanelLeftOpen, Users, Wallet } from 'lucide-react'
 
 const navItems = [
@@ -27,11 +27,13 @@ export default function Sidebar({ collapsed, mobileOpen, onToggle, onNavigate }:
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'open' : ''}`}>
       <div className="sidebar-brand">
-        <div className="sidebar-brand-icon"><BarChart3 size={20} /></div>
-        <div className="sidebar-brand-copy">
-          <h1>RealEstate Pro</h1>
-          <p>Management System</p>
-        </div>
+        <Link to="/" className="sidebar-brand-link" onClick={onNavigate} aria-label="Go to landing page">
+          <div className="sidebar-brand-icon"><BarChart3 size={20} /></div>
+          <div className="sidebar-brand-copy">
+            <h1>EstateFlow</h1>
+            <p>Management System</p>
+          </div>
+        </Link>
         <button className="sidebar-toggle" type="button" onClick={onToggle} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
           {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
         </button>
