@@ -3,7 +3,7 @@ import { BarChart3, Building2, Handshake, LayoutDashboard, LineChart, PanelLeftC
 
 const navItems = [
   { section: 'Overview', items: [
-    { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   ]},
   { section: 'Management', items: [
     { to: '/properties', icon: Building2, label: 'Properties' },
@@ -44,7 +44,7 @@ export default function Sidebar({ collapsed, mobileOpen, onToggle, onNavigate }:
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === '/'}
+                end
                 className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 title={collapsed ? item.label : undefined}
                 onClick={onNavigate}

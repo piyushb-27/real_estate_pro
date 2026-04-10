@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Menu } from 'lucide-react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
+import Landing from './pages/Landing'
 import Dashboard from './pages/Dashboard'
 import Properties from './pages/Properties'
 import Deals from './pages/Deals'
@@ -13,6 +14,7 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const location = useLocation()
+  const isLandingPage = location.pathname === '/'
 
   useEffect(() => {
     setMobileSidebarOpen(false)
@@ -20,18 +22,23 @@ export default function App() {
 
   return (
     <div className="app-layout">
-      <Sidebar
-        collapsed={sidebarCollapsed}
-        mobileOpen={mobileSidebarOpen}
-        onToggle={() => setSidebarCollapsed(prev => !prev)}
-        onNavigate={() => setMobileSidebarOpen(false)}
-      />
-      <main className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        <button className="mobile-sidebar-trigger" type="button" aria-label="Open navigation" onClick={() => setMobileSidebarOpen(true)}>
-          <Menu size={18} />
-        </button>
+      {!isLandingPage && (
+        <Sidebar
+          collapsed={sidebarCollapsed}
+          mobileOpen={mobileSidebarOpen}
+          onToggle={() => setSidebarCollapsed(prev => !prev)}
+          onNavigate={() => setMobileSidebarOpen(false)}
+        />
+      )}
+      <main className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${isLandingPage ? 'landing-main' : ''}`}>
+        {!isLandingPage && (
+          <button className="mobile-sidebar-trigger" type="button" aria-label="Open navigation" onClick={() => setMobileSidebarOpen(true)}>
+            <Menu size={18} />
+          </button>
+        )}
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/properties" element={<Properties />} />
           <Route path="/deals" element={<Deals />} />
           <Route path="/payments" element={<Payments />} />
@@ -39,13 +46,16 @@ export default function App() {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <footer className="site-footer">Made by Piyush (24BIT181) and Aagam (24BIT194)</footer>
       </main>
-      <button
-        type="button"
-        aria-label="Close navigation"
-        className={`sidebar-backdrop ${mobileSidebarOpen ? 'open' : ''}`}
-        onClick={() => setMobileSidebarOpen(false)}
-      />
+      {!isLandingPage && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          className={`sidebar-backdrop ${mobileSidebarOpen ? 'open' : ''}`}
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
     </div>
   )
 }
