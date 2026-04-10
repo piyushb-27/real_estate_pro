@@ -5,7 +5,7 @@ import { ArrowUpRight, BadgeCheck, Building2, CalendarDays, Hourglass, IndianRup
 export default function Dashboard() {
   const [stats, setStats] = useState({
     totalProperties: 0, available: 0, sold: 0, rented: 0,
-    pendingDeals: 0, closedDeals: 0, totalRevenue: 0,
+    pendingDeals: 0, closedDeals: 0, cancelledDeals: 0, totalRevenue: 0,
     totalCommission: 0, pendingCommission: 0, avgCommissionRate: 0,
     totalClients: 0, totalAgents: 0,
   })
@@ -17,12 +17,13 @@ export default function Dashboard() {
   async function fetchDashboard() {
     setLoading(true)
     try {
-      const [propRes, availRes, soldRes, rentedRes, pendingRes, closedRes, paymentRes, clientRes, agentRes, recentRes] = await Promise.all([
+      const [propRes, availRes, soldRes, rentedRes, pendingRes, cancelledRes, closedRes, paymentRes, clientRes, agentRes, recentRes] = await Promise.all([
         supabase.from('properties').select('property_id', { count: 'exact', head: true }),
         supabase.from('properties').select('property_id', { count: 'exact', head: true }).eq('status', 'available'),
         supabase.from('properties').select('property_id', { count: 'exact', head: true }).eq('status', 'sold'),
         supabase.from('properties').select('property_id', { count: 'exact', head: true }).eq('status', 'rented'),
         supabase.from('deals').select('deal_id', { count: 'exact', head: true }).eq('deal_status', 'pending'),
+        supabase.from('deals').select('deal_id', { count: 'exact', head: true }).eq('deal_status', 'cancelled'),
         supabase.from('deals').select('deal_id, agreed_price, commission_amount, commission_rate_pct').eq('deal_status', 'closed'),
         supabase.from('payments').select(`
           status,
@@ -62,6 +63,7 @@ export default function Dashboard() {
         sold: soldRes.count || 0,
         rented: rentedRes.count || 0,
         pendingDeals: pendingRes.count || 0,
+        cancelledDeals: cancelledRes.count || 0,
         closedDeals: closed.length,
         totalRevenue: closed.reduce((s: number, d: any) => s + Number(d.agreed_price), 0),
         totalCommission,
@@ -102,7 +104,7 @@ export default function Dashboard() {
   if (loading) return <div className="loading-spinner"><div className="spinner" /></div>
 
   const occupied = stats.sold + stats.rented
-  const totalDealFlow = stats.closedDeals + stats.pendingDeals
+  const totalDealFlow = stats.closedDeals + stats.pendingDeals + stats.cancelledDeals
   const closeRate = pct(stats.closedDeals, totalDealFlow)
   const inventoryHealth = pct(stats.available, stats.totalProperties)
   const occupancyRate = pct(occupied, stats.totalProperties)
@@ -227,7 +229,7 @@ export default function Dashboard() {
       </div>
 
       <section className="pulse-hero">
-        <div className="pulse-hero-main">
+        <div className="pulse-hero-main commission-highlight">
           <div className="pulse-hero-top">
             <span className="pulse-chip"><TrendingUp size={14} /> Performance Overview</span>
             <span className="pulse-growth"><ArrowUpRight size={14} /> {closeRate}% close rate</span>
@@ -254,7 +256,7 @@ export default function Dashboard() {
           <div className="pulse-side-card">
             <span>Deal Flow</span>
             <strong>{stats.closedDeals} closed</strong>
-            <small>{stats.pendingDeals} pending this cycle</small>
+            <small>{stats.pendingDeals} pending • {stats.cancelledDeals} cancelled</small>
           </div>
         </div>
       </section>

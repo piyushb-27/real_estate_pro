@@ -184,14 +184,21 @@ export default function Properties() {
                 <tr key={p.property_id}>
                   <td>#{p.property_id}</td>
                   <td style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-                    {p.title}
+                    <span className="property-title">{p.title}</span>
                     <br /><span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
                       {p.property_categories?.name} · {p.listing_type} · {p.bedrooms}BHK · {Number(p.area_sqft).toLocaleString()} sqft
                     </span>
                   </td>
                   <td>{p.city}{p.locality ? `, ${p.locality}` : ''}</td>
                   <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(Number(p.price))}</td>
-                  <td><span className={`badge ${p.status === 'available' ? 'active' : p.status === 'sold' ? 'sold' : 'rented'}`}>{p.status}</span></td>
+                  <td>
+                    <div className="status-card-group">
+                      <span className={`badge ${p.status === 'available' ? 'active' : p.status === 'sold' ? 'sold' : 'rented'}`}>{p.status}</span>
+                      <span className={`badge listing ${p.listing_type === 'rent' ? 'rent' : 'sale'}`}>
+                        {p.listing_type === 'rent' ? 'for rent' : 'for sale'}
+                      </span>
+                    </div>
+                  </td>
                   <td>
                     <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                       <button className="btn btn-ghost btn-sm" onClick={() => { setEditPrice(p); setNewPrice(String(p.price)) }}><Pencil size={14} /></button>

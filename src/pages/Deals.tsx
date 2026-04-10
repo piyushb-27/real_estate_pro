@@ -213,7 +213,7 @@ export default function Deals() {
                     <tr key={d.deal_id}>
                       <td>#{d.deal_id}</td>
                       <td style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-                        {prop?.title}
+                        <span className="property-title">{prop?.title}</span>
                         <br /><span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>{prop?.city}</span>
                       </td>
                       <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(Number(d.agreed_price))}</td>

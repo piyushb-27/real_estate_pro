@@ -546,6 +546,26 @@ button {
   box-shadow: var(--surface-shadow);
 }
 
+.commission-highlight {
+  border-color: rgba(193, 232, 255, 0.42);
+  box-shadow: 0 22px 44px rgba(2, 16, 36, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  position: relative;
+}
+
+.commission-highlight::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(130deg, rgba(193, 232, 255, 0.22), transparent 34%, transparent 70%, rgba(133, 199, 168, 0.16));
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  padding: 1px;
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+}
+
 .pulse-hero-top {
   display: flex;
   align-items: center;
@@ -713,6 +733,14 @@ button {
   font-size: var(--font-xs);
 }
 
+.property-title {
+  font-family: var(--font-heading);
+  font-size: 1.02rem;
+  letter-spacing: -0.012em;
+  color: var(--text-heading);
+  line-height: 1.2;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -722,6 +750,37 @@ button {
 .table-wrapper {
   overflow-x: auto;
   overflow-y: hidden;
+}
+
+.status-card-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge.listing {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge.listing.sale {
+  color: #d8efdf;
+  border-color: rgba(133, 199, 168, 0.34);
+  background: rgba(133, 199, 168, 0.12);
+}
+
+.badge.listing.sale::before {
+  background: var(--status-success);
+}
+
+.badge.listing.rent {
+  color: #dceaf8;
+  border-color: rgba(136, 175, 207, 0.36);
+  background: rgba(136, 175, 207, 0.14);
+}
+
+.badge.listing.rent::before {
+  background: var(--status-info);
 }
 
 .table-toolbar {
@@ -834,6 +893,24 @@ tbody tr:last-child td {
   gap: var(--space-2);
   min-width: 170px;
   white-space: nowrap;
+}
+
+.payment-table-scroll {
+  overflow-x: auto;
+}
+
+.payment-table-scroll table {
+  min-width: 1020px;
+}
+
+.payment-table {
+  table-layout: auto;
+}
+
+.payment-table th:last-child,
+.payment-table td:last-child {
+  min-width: 220px;
+  width: 220px;
 }
 
 .analytics-card {
@@ -1464,31 +1541,84 @@ select.form-input option {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: 0.72rem 0.94rem;
+  padding: 0.78rem 0.92rem;
   border-radius: 12px;
   border: 1px solid var(--surface-border-soft);
-  background: var(--bg-layer-strong);
+  background: linear-gradient(145deg, rgba(193, 232, 255, 0.14), rgba(193, 232, 255, 0.03) 54%, rgba(2, 16, 36, 0.2));
   backdrop-filter: blur(18px);
   box-shadow: var(--surface-shadow-soft);
   animation: slideInRight 420ms ease-in-out;
+  position: relative;
+  overflow: hidden;
 }
 
-.toast.success { border-left: 2px solid var(--status-success); }
-.toast.error { border-left: 2px solid var(--status-danger); }
-.toast.info { border-left: 2px solid var(--status-info); }
+.toast.success::before,
+.toast.error::before,
+.toast.info::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+}
+
+.toast.success::before { background: var(--status-success); }
+.toast.error::before { background: var(--status-danger); }
+.toast.info::before { background: var(--status-info); }
+
+.toast.success .toast-icon-wrap {
+  background: rgba(133, 199, 168, 0.18);
+  border-color: rgba(133, 199, 168, 0.35);
+}
+
+.toast.error .toast-icon-wrap {
+  background: rgba(197, 144, 157, 0.18);
+  border-color: rgba(197, 144, 157, 0.34);
+}
+
+.toast.info .toast-icon-wrap {
+  background: rgba(136, 175, 207, 0.18);
+  border-color: rgba(136, 175, 207, 0.34);
+}
+
+.toast-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(193, 232, 255, 0.22);
+  flex-shrink: 0;
+}
 
 .toast-icon {
-  font-size: 1rem;
+  font-size: 0.88rem;
+}
+
+.toast-message {
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+  line-height: 1.35;
 }
 
 .toast-close {
   margin-left: auto;
-  background: transparent;
+  background: rgba(193, 232, 255, 0.08);
+  border: 1px solid rgba(193, 232, 255, 0.14);
+  border-radius: 8px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-muted);
 }
 
 .toast-close:hover {
   color: var(--text-primary);
+  background: rgba(193, 232, 255, 0.14);
 }
 
 .empty-state {

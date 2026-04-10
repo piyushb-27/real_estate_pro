@@ -221,34 +221,36 @@ export default function Payments() {
         {filtered.length === 0 ? (
           <div className="empty-state"><div className="empty-state-icon"><Wallet size={36} /></div><h4>No payments yet</h4><p>Close a deal to auto-create a payment</p></div>
         ) : (
-          <table>
-            <thead><tr><th>ID</th><th>Property</th><th>Method</th><th>Amount</th><th>Status</th><th>Paid At</th><th>Actions</th></tr></thead>
-            <tbody>
-              {filtered.map(p => {
-                const d = unwrapOne(p.deals)
-                const prop = unwrapOne(d?.properties)
-                return (
-                  <tr key={p.payment_id}>
-                    <td>#{p.payment_id}</td>
-                    <td style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-                      {prop?.title || '—'}
-                      <br /><span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>{prop?.city || '—'}</span>
-                    </td>
-                    <td><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>{methodIcons[p.method] || <Wallet size={14} />} {p.method.replace(/_/g, ' ')}</span></td>
-                    <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(Number(p.amount))}</td>
-                    <td><span className={`badge ${p.status}`}>{p.status}</span></td>
-                    <td>{p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-IN') : '—'}</td>
-                    <td>{p.status === 'pending' ? (
-                      <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                        <button className="btn btn-success btn-sm" onClick={() => markComplete(p.payment_id)}><Check size={14} /> Complete</button>
-                        <button className="btn btn-danger btn-sm" onClick={() => markFailed(p.payment_id)}><Ban size={14} /> Fail</button>
-                      </div>
-                    ) : '—'}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          <div className="payment-table-scroll">
+            <table className="payment-table">
+              <thead><tr><th>ID</th><th>Property</th><th>Method</th><th>Amount</th><th>Status</th><th>Paid At</th><th>Actions</th></tr></thead>
+              <tbody>
+                {filtered.map(p => {
+                  const d = unwrapOne(p.deals)
+                  const prop = unwrapOne(d?.properties)
+                  return (
+                    <tr key={p.payment_id}>
+                      <td>#{p.payment_id}</td>
+                      <td style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+                        <span className="property-title">{prop?.title || '—'}</span>
+                        <br /><span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>{prop?.city || '—'}</span>
+                      </td>
+                      <td><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>{methodIcons[p.method] || <Wallet size={14} />} {p.method.replace(/_/g, ' ')}</span></td>
+                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(Number(p.amount))}</td>
+                      <td><span className={`badge ${p.status}`}>{p.status}</span></td>
+                      <td>{p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-IN') : '—'}</td>
+                      <td>{p.status === 'pending' ? (
+                        <div className="row-actions">
+                          <button className="btn btn-success btn-sm" onClick={() => markComplete(p.payment_id)}><Check size={14} /> Complete</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => markFailed(p.payment_id)}><Ban size={14} /> Fail</button>
+                        </div>
+                      ) : '—'}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
