@@ -154,7 +154,39 @@ export default function Payments() {
 
   const received = payments.filter(p => p.status === 'completed').reduce((s, p) => s + commissionOf(p), 0)
   const pending = payments.filter(p => p.status === 'pending').reduce((s, p) => s + commissionOf(p), 0)
+  const failedValue = payments.filter(p => p.status === 'failed').reduce((s, p) => s + commissionOf(p), 0)
   const failedCount = payments.filter(p => p.status === 'failed').length
+  const totalTracked = received + pending + failedValue
+
+  const summaryCards = [
+    {
+      key: 'received',
+      label: 'Received',
+      value: fmt(received),
+      subtext: 'Settled commission inflow',
+      accent: 'received',
+      ratio: totalTracked ? Math.round((received / totalTracked) * 100) : 0,
+      icon: Check,
+    },
+    {
+      key: 'pending',
+      label: 'Pending',
+      value: fmt(pending),
+      subtext: 'Expected from open settlements',
+      accent: 'pending',
+      ratio: totalTracked ? Math.round((pending / totalTracked) * 100) : 0,
+      icon: Clock3,
+    },
+    {
+      key: 'failed',
+      label: 'Failed',
+      value: `${failedCount} txns`,
+      subtext: `At-risk commission ${fmt(failedValue)}`,
+      accent: 'failed',
+      ratio: totalTracked ? Math.round((failedValue / totalTracked) * 100) : 0,
+      icon: CircleX,
+    },
+  ]
 
   if (loading) return <div className="loading-spinner"><div className="spinner" /></div>
 
@@ -165,11 +197,21 @@ export default function Payments() {
         <p>Track payment status — payments are auto-created when deals are closed</p>
       </div>
 
-      <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-        <div className="stat-card emerald"><div className="stat-card-header"><span className="stat-card-label">Received</span><div className="stat-card-icon"><Check size={20} /></div></div><div className="stat-card-value">{fmt(received)}</div></div>
-        <div className="stat-card amber"><div className="stat-card-header"><span className="stat-card-label">Pending</span><div className="stat-card-icon"><Clock3 size={20} /></div></div><div className="stat-card-value">{fmt(pending)}</div></div>
-        <div className="stat-card rose"><div className="stat-card-header"><span className="stat-card-label">Failed</span><div className="stat-card-icon"><CircleX size={20} /></div></div><div className="stat-card-value">{failedCount}</div></div>
-      </div>
+      <section className="payment-highlight-grid">
+        {summaryCards.map(card => (
+          <article key={card.key} className={`payment-highlight-card ${card.accent}`}>
+            <div className="payment-highlight-head">
+              <span>{card.label}</span>
+              <div className="payment-highlight-icon"><card.icon size={16} /></div>
+            </div>
+            <h3>{card.value}</h3>
+            <p>{card.subtext}</p>
+            <div className="payment-highlight-meter" role="presentation">
+              <i style={{ width: `${Math.max(10, card.ratio)}%` }} />
+            </div>
+          </article>
+        ))}
+      </section>
 
       <div className="table-wrapper">
         <div className="table-toolbar">

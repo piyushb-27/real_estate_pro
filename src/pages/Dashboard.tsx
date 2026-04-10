@@ -222,19 +222,19 @@ export default function Dashboard() {
   return (
     <div className="fade-in dashboard-pulse">
       <div className="page-header">
-        <h2>Dashboard</h2>
-        <p>Commission-first view of brokerage performance</p>
+        <h2>Portfolio Intelligence</h2>
+        <p>Live overview of property health, deal momentum, and commission performance</p>
       </div>
 
       <section className="pulse-hero">
         <div className="pulse-hero-main">
           <div className="pulse-hero-top">
-            <span className="pulse-chip"><TrendingUp size={14} /> Commission Pulse</span>
-            <span className="pulse-growth"><ArrowUpRight size={14} /> {Math.max(6, closeRate)}% momentum</span>
+            <span className="pulse-chip"><TrendingUp size={14} /> Performance Overview</span>
+            <span className="pulse-growth"><ArrowUpRight size={14} /> {closeRate}% close rate</span>
           </div>
-          <p className="pulse-label">Total Commission (Completed Payments)</p>
+          <p className="pulse-label">Recognized Commission</p>
           <h3>{fmt(stats.totalCommission)}</h3>
-          <p className="pulse-subtext">Average per close: {fmt(Math.round(avgCommission || 0))}</p>
+          <p className="pulse-subtext">Average per closed deal: {fmt(Math.round(avgCommission || 0))}</p>
           <div className="pulse-track" role="presentation">
             <span style={{ width: `${Math.max(12, Math.round(stats.avgCommissionRate * 10))}%` }} />
           </div>
@@ -282,8 +282,8 @@ export default function Dashboard() {
 
       <div className="card pulse-timeline-card">
         <div className="pulse-timeline-header">
-          <h3>Recent Deals Timeline</h3>
-          <p>Fresh closures and active deals, ordered by date</p>
+          <h3>Recent Deal Activity</h3>
+          <p>Structured flow of the latest transactions and current status</p>
         </div>
         {recentDeals.length === 0 ? (
           <div className="empty-state">

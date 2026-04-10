@@ -201,38 +201,40 @@ export default function Deals() {
         {filteredDeals.length === 0 ? (
           <div className="empty-state"><div className="empty-state-icon"><Ban size={36} /></div><h4>No {filter !== 'all' ? filter : ''} deals</h4><p>Create a deal to get started</p></div>
         ) : (
-          <table>
-            <thead><tr><th>ID</th><th>Property</th><th>Price</th><th>Commission</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-            <tbody>
-              {filteredDeals.map(d => {
-                const prop = d.properties as any
-                const commissionRate = Number(d.commission_rate_pct || 0)
-                const commissionAmount = Number(d.commission_amount || getCommissionAmount(d.agreed_price, commissionRate))
-                return (
-                  <tr key={d.deal_id}>
-                    <td>#{d.deal_id}</td>
-                    <td style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-                      {prop?.title}
-                      <br /><span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>{prop?.city}</span>
-                    </td>
-                    <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(Number(d.agreed_price))}</td>
-                    <td>
-                      <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{fmt(commissionAmount)}</div>
-                      <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>{commissionRate.toFixed(1)}%</span>
-                    </td>
-                    <td><span className={`badge ${d.deal_status}`}>{d.deal_status}</span></td>
-                    <td>{new Date(d.deal_date).toLocaleDateString('en-IN')}</td>
-                    <td>{d.deal_status === 'pending' ? (
-                      <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                        <button className="btn btn-success btn-sm" onClick={() => handleCloseClick(d)}><Check size={14} /> Close</button>
-                        <button className="btn btn-danger btn-sm" onClick={() => cancelDeal(d)}><Ban size={14} /> Cancel</button>
-                      </div>
-                    ) : '—'}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          <div className="deal-table-scroll">
+            <table className="deal-table">
+              <thead><tr><th>ID</th><th>Property</th><th>Price</th><th>Commission</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+              <tbody>
+                {filteredDeals.map(d => {
+                  const prop = d.properties as any
+                  const commissionRate = Number(d.commission_rate_pct || 0)
+                  const commissionAmount = Number(d.commission_amount || getCommissionAmount(d.agreed_price, commissionRate))
+                  return (
+                    <tr key={d.deal_id}>
+                      <td>#{d.deal_id}</td>
+                      <td style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+                        {prop?.title}
+                        <br /><span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>{prop?.city}</span>
+                      </td>
+                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(Number(d.agreed_price))}</td>
+                      <td>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{fmt(commissionAmount)}</div>
+                        <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>{commissionRate.toFixed(1)}%</span>
+                      </td>
+                      <td><span className={`badge ${d.deal_status}`}>{d.deal_status}</span></td>
+                      <td>{new Date(d.deal_date).toLocaleDateString('en-IN')}</td>
+                      <td>{d.deal_status === 'pending' ? (
+                        <div className="row-actions">
+                          <button className="btn btn-success btn-sm" onClick={() => handleCloseClick(d)}><Check size={14} /> Close</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => cancelDeal(d)}><Ban size={14} /> Cancel</button>
+                        </div>
+                      ) : '—'}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
