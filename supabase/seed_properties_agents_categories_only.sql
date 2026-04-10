@@ -66,4 +66,8 @@ VALUES
   (4, 4, 'Harish Patel', 'Infinitum Business Hub', 'Plug-and-play office with cafeteria floor access.', 'Hyderabad', 'HITEC City', 5250, 0, 3, 'furnished', 2019, 'rent', 510000, 'available'),
   (3, 6, 'Anjali Menon', 'Maple Independent Home', 'Quiet neighborhood house with backyard and storage.', 'Kochi', 'Panampilly Nagar', 2350, 4, 3, 'semi-furnished', 2015, 'sale', 14600000, 'available');
 
+-- Keep SERIAL sequences aligned after explicit primary key inserts.
+SELECT setval('property_categories_category_id_seq', COALESCE((SELECT MAX(category_id) FROM property_categories), 1), true);
+SELECT setval('agents_agent_id_seq', COALESCE((SELECT MAX(agent_id) FROM agents), 1), true);
+
 COMMIT;
