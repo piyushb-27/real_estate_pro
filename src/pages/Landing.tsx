@@ -18,7 +18,7 @@ export default function Landing() {
       <div className="landing-glow landing-glow-right" aria-hidden="true" />
 
       <div className="landing-content">
-        <p className="landing-kicker">Real Estate Intelligence</p>
+        <p className="landing-kicker">Real Estate Management System</p>
         <h1>EstateFlow</h1>
         <p className="landing-description">A modern platform to manage listings, deals, payments, and analytics in one place.</p>
 
