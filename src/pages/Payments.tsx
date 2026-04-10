@@ -34,6 +34,7 @@ interface Payment {
 export default function Payments() {
   const [payments, setPayments] = useState<Payment[]>([])
   const [loading, setLoading] = useState(true)
+  const [completingId, setCompletingId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
   const { addToast } = useToast()
 
@@ -50,74 +51,80 @@ export default function Payments() {
   }
 
   async function markComplete(id: number) {
-    const { data: paymentRow, error: paymentErr } = await supabase
-      .from('payments')
-      .select('payment_id, deal_id')
-      .eq('payment_id', id)
-      .single()
+    setCompletingId(id)
 
-    if (paymentErr || !paymentRow) {
-      addToast(`Failed: ${paymentErr?.message || 'Payment not found'}`, 'error')
-      return
-    }
+    try {
+      const { data: paymentRow, error: paymentErr } = await supabase
+        .from('payments')
+        .select('payment_id, deal_id')
+        .eq('payment_id', id)
+        .single()
 
-    const { data: dealRow, error: dealErr } = await supabase
-      .from('deals')
-      .select('deal_id, property_id, agreed_price, commission_rate_pct, commission_amount')
-      .eq('deal_id', paymentRow.deal_id)
-      .single()
-
-    if (dealErr || !dealRow) {
-      addToast(`Failed: ${dealErr?.message || 'Deal not found for payment'}`, 'error')
-      return
-    }
-
-    const { data: propertyRow, error: propertyErr } = await supabase
-      .from('properties')
-      .select('agent_id')
-      .eq('property_id', dealRow.property_id)
-      .single()
-
-    if (propertyErr) {
-      addToast(`Failed: ${propertyErr.message}`, 'error')
-      return
-    }
-
-    const { error: paymentUpdateErr } = await supabase
-      .from('payments')
-      .update({ status: 'completed', paid_at: new Date().toISOString() })
-      .eq('payment_id', id)
-
-    if (paymentUpdateErr) {
-      addToast(`Failed: ${paymentUpdateErr.message}`, 'error')
-      return
-    }
-
-    if (propertyRow?.agent_id) {
-      const commissionValue = Number(
-        dealRow.commission_amount ||
-        (Number(dealRow.agreed_price) * Number(dealRow.commission_rate_pct || 2)) / 100,
-      )
-
-      const { data: existingLog } = await supabase
-        .from('commission_logs')
-        .select('log_id')
-        .eq('deal_id', dealRow.deal_id)
-        .limit(1)
-        .maybeSingle()
-
-      if (!existingLog) {
-        await supabase.from('commission_logs').insert({
-          deal_id: dealRow.deal_id,
-          agent_id: propertyRow.agent_id,
-          commission_amount: commissionValue,
-          reason: `Commission for Deal #${dealRow.deal_id} (payment completed)`,
-        })
+      if (paymentErr || !paymentRow) {
+        addToast(`Failed: ${paymentErr?.message || 'Payment not found'}`, 'error')
+        return
       }
-    }
 
-    addToast('Payment completed! Commission recognized.', 'success')
-    fetchAll()
+      const { data: dealRow, error: dealErr } = await supabase
+        .from('deals')
+        .select('deal_id, property_id, agreed_price, commission_rate_pct, commission_amount')
+        .eq('deal_id', paymentRow.deal_id)
+        .single()
+
+      if (dealErr || !dealRow) {
+        addToast(`Failed: ${dealErr?.message || 'Deal not found for payment'}`, 'error')
+        return
+      }
+
+      const { data: propertyRow, error: propertyErr } = await supabase
+        .from('properties')
+        .select('agent_id')
+        .eq('property_id', dealRow.property_id)
+        .single()
+
+      if (propertyErr) {
+        addToast(`Failed: ${propertyErr.message}`, 'error')
+        return
+      }
+
+      const { error: paymentUpdateErr } = await supabase
+        .from('payments')
+        .update({ status: 'completed', paid_at: new Date().toISOString() })
+        .eq('payment_id', id)
+
+      if (paymentUpdateErr) {
+        addToast(`Failed: ${paymentUpdateErr.message}`, 'error')
+        return
+      }
+
+      if (propertyRow?.agent_id) {
+        const commissionValue = Number(
+          dealRow.commission_amount ||
+          (Number(dealRow.agreed_price) * Number(dealRow.commission_rate_pct || 2)) / 100,
+        )
+
+        const { data: existingLog } = await supabase
+          .from('commission_logs')
+          .select('log_id')
+          .eq('deal_id', dealRow.deal_id)
+          .limit(1)
+          .maybeSingle()
+
+        if (!existingLog) {
+          await supabase.from('commission_logs').insert({
+            deal_id: dealRow.deal_id,
+            agent_id: propertyRow.agent_id,
+            commission_amount: commissionValue,
+            reason: `Commission for Deal #${dealRow.deal_id} (payment completed)`,
+          })
+        }
+      }
+
+      addToast('Payment completed! Commission recognized.', 'success')
+      fetchAll()
+    } finally {
+      setCompletingId(null)
+    }
   }
 
   async function markFailed(id: number) {
@@ -228,6 +235,7 @@ export default function Payments() {
                 {filtered.map(p => {
                   const d = unwrapOne(p.deals)
                   const prop = unwrapOne(d?.properties)
+                  const isCompleting = completingId === p.payment_id
                   return (
                     <tr key={p.payment_id}>
                       <td>#{p.payment_id}</td>
@@ -241,8 +249,10 @@ export default function Payments() {
                       <td>{p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-IN') : '—'}</td>
                       <td>{p.status === 'pending' ? (
                         <div className="row-actions">
-                          <button className="btn btn-success btn-sm" onClick={() => markComplete(p.payment_id)}><Check size={14} /> Complete</button>
-                          <button className="btn btn-danger btn-sm" onClick={() => markFailed(p.payment_id)}><Ban size={14} /> Fail</button>
+                          <button className="btn btn-success btn-sm" disabled={isCompleting} onClick={() => markComplete(p.payment_id)}>
+                            {isCompleting ? <><span className="btn-inline-loader" aria-hidden="true" /> Completing...</> : <><Check size={14} /> Complete</>}
+                          </button>
+                          <button className="btn btn-danger btn-sm" disabled={isCompleting} onClick={() => markFailed(p.payment_id)}><Ban size={14} /> Fail</button>
                         </div>
                       ) : '—'}</td>
                     </tr>

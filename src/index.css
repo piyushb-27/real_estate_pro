@@ -1794,7 +1794,8 @@ select.form-input option {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: var(--space-12);
+  min-height: clamp(280px, calc(100vh - 220px), 560px);
+  padding: var(--space-8) var(--space-6);
 }
 
 .spinner {
@@ -1804,6 +1805,15 @@ select.form-input option {
   border-top-color: rgba(193, 232, 255, 0.78);
   border-radius: 999px;
   animation: spin 760ms linear infinite;
+}
+
+.btn-inline-loader {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+  animation: spin 680ms linear infinite;
 }
 
 .bar-chart {
