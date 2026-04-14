@@ -159,7 +159,15 @@ export default function Payments() {
     return Number(deal.commission_amount || (Number(deal.agreed_price) * Number(deal.commission_rate_pct || 2)) / 100)
   }
 
-  const received = payments.filter(p => p.status === 'completed').reduce((s, p) => s + commissionOf(p), 0)
+  const now = new Date()
+  const currentMonth = now.getMonth()
+  const currentYear = now.getFullYear()
+
+  const received = payments.filter(p => {
+    if (p.status !== 'completed' || !p.paid_at) return false
+    const d = new Date(p.paid_at)
+    return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+  }).reduce((s, p) => s + commissionOf(p), 0)
   const pending = payments.filter(p => p.status === 'pending').reduce((s, p) => s + commissionOf(p), 0)
   const failedValue = payments.filter(p => p.status === 'failed').reduce((s, p) => s + commissionOf(p), 0)
   const failedCount = payments.filter(p => p.status === 'failed').length
@@ -170,7 +178,7 @@ export default function Payments() {
       key: 'received',
       label: 'Received',
       value: fmt(received),
-      subtext: 'Settled commission inflow',
+      subtext: 'Monthly commission',
       accent: 'received',
       ratio: totalTracked ? Math.round((received / totalTracked) * 100) : 0,
       icon: Check,
@@ -244,7 +252,7 @@ export default function Payments() {
                         <br /><span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>{prop?.city || '—'}</span>
                       </td>
                       <td><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>{methodIcons[p.method] || <Wallet size={14} />} {p.method.replace(/_/g, ' ')}</span></td>
-                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(Number(p.amount))}</td>
+                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(commissionOf(p))}</td>
                       <td><span className={`badge ${p.status}`}>{p.status}</span></td>
                       <td>{p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-IN') : '—'}</td>
                       <td>{p.status === 'pending' ? (

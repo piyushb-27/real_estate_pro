@@ -6,7 +6,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({
     totalProperties: 0, available: 0, sold: 0, rented: 0,
     pendingDeals: 0, closedDeals: 0, cancelledDeals: 0, totalRevenue: 0,
-    totalCommission: 0, pendingCommission: 0, avgCommissionRate: 0,
+    totalCommission: 0, currentMonthCommission: 0, pendingCommission: 0, avgCommissionRate: 0,
     totalClients: 0, totalAgents: 0,
   })
   const [recentDeals, setRecentDeals] = useState<any[]>([])
@@ -26,7 +26,7 @@ export default function Dashboard() {
         supabase.from('deals').select('deal_id', { count: 'exact', head: true }).eq('deal_status', 'cancelled'),
         supabase.from('deals').select('deal_id, agreed_price, commission_amount, commission_rate_pct').eq('deal_status', 'closed'),
         supabase.from('payments').select(`
-          status,
+          status, paid_at,
           deals (deal_id, agreed_price, commission_amount, commission_rate_pct)
         `).in('status', ['pending', 'completed']),
         supabase.from('clients').select('client_id', { count: 'exact', head: true }),
@@ -52,6 +52,17 @@ export default function Dashboard() {
       }
 
       const totalCommission = completedPayments.reduce((s: number, p: any) => s + commissionForPayment(p).commission, 0)
+      
+      const now = new Date()
+      const currentMonth = now.getMonth()
+      const currentYear = now.getFullYear()
+      const currentMonthPayments = completedPayments.filter((p: any) => {
+        if (!p.paid_at) return false
+        const d = new Date(p.paid_at)
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+      })
+      const currentMonthCommission = currentMonthPayments.reduce((s: number, p: any) => s + commissionForPayment(p).commission, 0)
+
       const pendingCommission = pendingPayments.reduce((s: number, p: any) => s + commissionForPayment(p).commission, 0)
       const avgCommissionRate = completedPayments.length
         ? completedPayments.reduce((s: number, p: any) => s + commissionForPayment(p).rate, 0) / completedPayments.length
@@ -67,6 +78,7 @@ export default function Dashboard() {
         closedDeals: closed.length,
         totalRevenue: closed.reduce((s: number, d: any) => s + Number(d.agreed_price), 0),
         totalCommission,
+        currentMonthCommission,
         pendingCommission,
         avgCommissionRate,
         totalClients: clientRes.count || 0,
@@ -234,9 +246,9 @@ export default function Dashboard() {
             <span className="pulse-chip"><TrendingUp size={14} /> Performance Overview</span>
             <span className="pulse-growth"><ArrowUpRight size={14} /> {closeRate}% close rate</span>
           </div>
-          <p className="pulse-label">Recognized Commission</p>
-          <h3>{fmt(stats.totalCommission)}</h3>
-          <p className="pulse-subtext">Average per closed deal: {fmt(Math.round(avgCommission || 0))}</p>
+          <p className="pulse-label">Recognized Commission (This Month)</p>
+          <h3>{fmt(stats.currentMonthCommission)}</h3>
+          <p className="pulse-subtext">Total: {fmt(stats.totalCommission)} • Avg per deal: {fmt(Math.round(avgCommission || 0))}</p>
           <div className="pulse-track" role="presentation">
             <span style={{ width: `${Math.max(12, Math.round(stats.avgCommissionRate * 10))}%` }} />
           </div>
