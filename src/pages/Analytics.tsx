@@ -63,16 +63,18 @@ export default function Analytics() {
   async function fetchAnalytics() {
     setLoading(true)
     try {
-      const [propertiesRes, dealsRes] = await Promise.all([
+      const [propertiesRes, dealsRes, paymentsRes] = await Promise.all([
         supabase.from('properties').select('city, locality'),
         supabase.from('deals').select(`
-          deal_type, deal_date, agreed_price, commission_amount, commission_rate_pct,
+          deal_id, deal_type, deal_date, agreed_price, commission_amount, commission_rate_pct,
           properties (agent_id, agents (first_name, last_name))
         `).eq('deal_status', 'closed'),
+        supabase.from('payments').select('deal_id, status').eq('status', 'completed')
       ])
 
       const properties = propertiesRes.data || []
-      const closedDeals = dealsRes.data || []
+      const completedPaymentDealIds = new Set((paymentsRes.data || []).map((p: any) => p.deal_id))
+      const closedDeals = (dealsRes.data || []).filter((d: any) => completedPaymentDealIds.has(d.deal_id))
 
       const areaMap: Record<string, number> = {}
       for (const p of properties) {
