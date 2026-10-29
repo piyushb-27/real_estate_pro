@@ -1,77 +1,30 @@
-# EstateFlow
+# EstateFlow — simplified property workspace
 
-EstateFlow is a real estate management dashboard for tracking properties, deals, payments, agents, and analytics in one place. It uses a dark, glassy interface and is structured as a single-page app with route-based views.
+React + Vite, JavaScript/JSX, native HTML elements, custom CSS, and Supabase. The primary pages are Dashboard and Properties; deal and payment information is summarized on the dashboard.
 
-## Tech Stack
-
-- React 19
-- TypeScript
-- Vite
-- React Router
-- Supabase
-- Lucide React icons
-
-## Features
-
-- Landing page with quick navigation into the app
-- Dashboard, Properties, Deals, Payments, Agents, and Analytics pages
-- Responsive sidebar navigation with a mobile drawer
-- Toast notifications and modal-based UI patterns
-- Supabase-ready data layer for backend integration
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18 or newer
-- npm
-
-### Install
+## Run locally
 
 ```bash
 npm install
-```
-
-### Configure Environment Variables
-
-Create a `.env` file in the project root with your Supabase credentials:
-
-```bash
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### Run the App
-
-```bash
+cp .env.example .env.local
 npm run dev
 ```
 
-### Build for Production
+Leave the Supabase values blank to use preview data. To connect the existing Supabase project, fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env.local`, then restart Vite.
 
-```bash
-npm run build
-```
+## Existing database
 
-### Preview the Production Build
+The app uses the current `supabase/schema.sql` table names and relationships: `properties`, `property_categories`, `agents`, `clients`, `deals`, and `payments`. It does not require a schema reset. Property creation and status changes use the existing properties table.
 
-```bash
-npm run preview
-```
+## Security note
 
-## Project Structure
+The existing schema includes permissive `Allow all for anon` row-level security policies. Review and replace those policies with authenticated, role-scoped rules before storing real client, owner, deal, or payment data. Never put a Supabase service-role key in a browser app.
 
-```text
-src/
-  components/   Reusable UI components such as the sidebar, modal, and toast system
-  lib/          Shared utilities, including the Supabase client
-  pages/        Route-level screens for the app
-  App.tsx       Application routes and layout shell
-  main.tsx      React entry point
-  index.css     Global styles and theme variables
-supabase/       SQL scripts for schema, seed data, and cleanup helpers
-```
+## Included
 
-## Supabase Setup
-
-The `supabase/` folder contains SQL files for the database schema and supporting data scripts. Apply the schema first, then seed data if needed, and keep the cleanup/repair scripts for maintenance tasks.
+- Portfolio metrics and recent deal activity.
+- Inventory search and status filtering.
+- Add-property form and listing status updates.
+- Responsive light dashboard layout.
+- Preview data when Supabase is not configured.
+- No UI component library, icon package, or router.
